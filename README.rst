@@ -1,4 +1,4 @@
 Sier2 Blocks
 ============
 
-This library useful blocks.
+This library provides useful blocks.

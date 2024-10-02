@@ -15,6 +15,12 @@ class LoadDataFrame(Block):
     """Load a pandas DataFrame from a csv file or Excel spreadsheet."""
 
     out_df = param.DataFrame(doc='A pandas dataframe')
+    out_kdims = param.List(['x', 'y'], item_type=str, bounds=(2,2), doc='Column names of kdims for hv.Points')
+    out_vdims = param.List(item_type=str, doc='Column names of vdims for hv.Points')
+    out_opts = param.Dict(doc='Opts for hv.Points')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, user_input=True, **kwargs)
 
     def __panel__(self):
         self.fs = None
@@ -37,6 +43,17 @@ class LoadDataFrame(Block):
                     txt.value = f'Loaded Excel spreadsheet {p}'
                 else:
                     txt.value = 'Unrecognised file type'
+                    return
+
+            self.out_kdims = ['x', 'y']
+            self.out_vdims = ['name']
+            self.out_opts = {
+                'color': 'name',
+                'cmap': 'glasbey_light',
+                'size': 4,
+                'show_legend': False,
+                'tools': ['hover']
+            }
 
         def on_drive(_event):
             print(_event, type(_event))
