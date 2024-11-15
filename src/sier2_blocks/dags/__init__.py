@@ -1,1 +1,1 @@
-from ._dags import hv_points_dag
+from ._dags import hv_points_dag, table_view_dag
