@@ -1,6 +1,6 @@
 from ..blocks._io import LoadDataFrame
 from ..blocks._holoviews import HvPoints
-from ..blocks._view import SimpleTable, SimpleTable2
+from ..blocks._view import SimpleTable
 
 from sier2 import Connection
 from sier2.panel import PanelDag
@@ -36,7 +36,7 @@ def table_view_dag():
 
     ldf = LoadDataFrame(name='Load DataFrame')
     st = SimpleTable(name='View Table')
-    sel_st = SimpleTable2(name='Selection')
+    sel_st = SimpleTable(name='Selection')
 
     DOC = '''# Table viewer
 
