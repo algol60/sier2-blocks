@@ -35,7 +35,7 @@ class LoadDataFrame(InputBlock):
         )
     
     def execute(self):
-        pn.state.notifications.info('Reading csv', duration=5_000)
+        pn.state.notifications.info('Reading file', duration=5_000)
         
         try:
             if self.i_if.filename.endswith('.csv'):

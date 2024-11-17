@@ -5,6 +5,9 @@ from sier2 import InputBlock, Block
 
 class SimpleTable(InputBlock):
     """ Simple Table Viewer
+
+    Make a tabulator to display an input table.
+    Can pass on selections as an output.
     """
 
     in_df = param.DataFrame(doc='Input pandas dataframe')
@@ -15,13 +18,15 @@ class SimpleTable(InputBlock):
         self.tabulator = pn.widgets.Tabulator(pd.DataFrame(), name='DataFrame', page_size=20, pagination='local')
 
     def prepare(self):
+        """
+        Run before the button is clicked, load the table.
+        """
         if self.in_df is not None:
             self.tabulator.value = self.in_df
         else:
             self.tabulator.value = pd.DataFrame()
     
     def execute(self):
-        print(self.tabulator.selected_dataframe)
         self.out_df = self.tabulator.selected_dataframe
 
     def __panel__(self):
