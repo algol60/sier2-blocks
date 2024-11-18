@@ -1,6 +1,6 @@
 from ..blocks._io import LoadDataFrame
-from ..blocks._holoviews import HvPoints
-from ..blocks._view import SimpleTable
+from ..blocks._holoviews import HvPoints, HvPointsSelect
+from ..blocks._view import SimpleTable, SimpleTableSelect
 
 from sier2 import Connection
 from sier2.panel import PanelDag
@@ -14,7 +14,8 @@ def hv_points_dag():
     """Load a dataframe from a file and display a Points chart."""
 
     ldf = LoadDataFrame(name='Load DataFrame')
-    hp = HvPoints(name='Plot Points')
+    hps = HvPointsSelect(name='Plot Points')
+    st = SimpleTable(name='View Selection')
 
     DOC = '''# Points chart
     
@@ -22,7 +23,10 @@ def hv_points_dag():
     '''
 
     dag = PanelDag(doc=DOC, site='Chart', title='Points')
-    dag.connect(ldf, hp,
+    dag.connect(ldf, hps,
+        Connection('out_df', 'in_df'),
+    )
+    dag.connect(hps, st,
         Connection('out_df', 'in_df'),
     )
 
@@ -32,7 +36,7 @@ def table_view_dag():
     """Load a dataframe from file and display in a panel table."""
 
     ldf = LoadDataFrame(name='Load DataFrame')
-    st = SimpleTable(name='View Table')
+    st = SimpleTableSelect(name='View Table')
     sel_st = SimpleTable(name='Selection')
 
     DOC = '''# Table viewer
