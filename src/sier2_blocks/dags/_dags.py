@@ -24,9 +24,6 @@ def hv_points_dag():
     dag = PanelDag(doc=DOC, site='Chart', title='Points')
     dag.connect(ldf, hp,
         Connection('out_df', 'in_df'),
-        Connection('out_kdims', 'in_kdims'),
-        Connection('out_vdims', 'in_vdims'),
-        Connection('out_opts', 'in_opts')
     )
 
     return dag
