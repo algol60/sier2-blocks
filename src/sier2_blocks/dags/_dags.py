@@ -1,5 +1,5 @@
 from ..blocks._io import LoadDataFrame
-from ..blocks._holoviews import HvPoints, HvPointsSelect
+from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
 from ..blocks._view import SimpleTable, SimpleTableSelect
 
 from sier2 import Connection
@@ -27,6 +27,24 @@ def hv_points_dag():
         Connection('out_df', 'in_df'),
     )
     dag.connect(hps, st,
+        Connection('out_df', 'in_df'),
+    )
+
+    return dag
+
+def hv_hist_dag():
+    """Load a dataframe from a file and display a Histogram."""
+
+    ldf = LoadDataFrame(name='Load DataFrame')
+    hh = HvHist(name='Plot Histogram')
+
+    DOC = '''# Points chart
+    
+    Load a dataframe from a file and display a Points chart.
+    '''
+
+    dag = PanelDag(doc=DOC, site='Chart', title='Histogram')
+    dag.connect(ldf, hh,
         Connection('out_df', 'in_df'),
     )
 
