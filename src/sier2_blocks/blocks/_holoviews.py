@@ -115,25 +115,33 @@ class HvHist(Block):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
 
-        # Make a widget to control the 
+        # Make a pane to hold the plot.
+        #
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
+
+        # Make a widget to control the bins parameter.
+        # We need this so we can disable it when using integer bins.
+        #
         self.bins_widget = pn.widgets.IntInput(name='Bins', start=0, value=self.bins)
         self.bins_widget.param.watch(lambda event: setattr(self, 'bins', event.new), 'value')
-        
+
+        # Set up the plot.
+        #
         self.hv_pane.object=self._produce_plot
         
     
     @param.depends('in_df', 'column', 'bins', 'integer_bins')
-    def _produce_plot(self):        
+    def _produce_plot(self):     
+
+        # Disable the bin selection when using integer bins.
+        #
         if self.integer_bins:
             self.bins_widget.disabled = True
         else:
             self.bins_widget.disabled = False
           
         if self.in_df is not None and self.column is not None :
-
             if self.integer_bins:
                 col = self.in_df[self.column]
                 self.bins = col.max() - col.min() + 1
@@ -149,12 +157,7 @@ class HvHist(Block):
         else:
             frequencies, edges = [], []
 
-        return hv.Histogram((edges, frequencies))
-
-    # @param.depends('integer_bins')
-    # def _switch_bin_type(self):
-    #     print('Here')
-        
+        return hv.Histogram((edges, frequencies))        
 
     def execute(self):
         plottable_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']

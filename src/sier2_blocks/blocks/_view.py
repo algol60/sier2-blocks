@@ -3,6 +3,8 @@ import pandas as pd
 import panel as pn
 from sier2 import InputBlock, Block
 
+pn.extension('tabulator')
+
 class SimpleTable(Block):
     """ Simple Table Viewer
 
