@@ -54,3 +54,17 @@ class LoadDataFrame(InputBlock):
         )
 
         return pn.Column(self.i_if, i_hr)
+
+
+class StaticDataFrame(InputBlock):
+    """ Static import.
+    
+    """
+
+    out_df = param.DataFrame()
+    
+    def execute(self):
+        self.out_df = pd.DataFrame(data = {
+            "calories": [420, 380, 390],
+            "duration": [50, 40, 45]
+        })

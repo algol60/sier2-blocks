@@ -1,4 +1,4 @@
-from ..blocks._io import LoadDataFrame
+from ..blocks._io import LoadDataFrame, StaticDataFrame
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
 from ..blocks._view import SimpleTable, SimpleTableSelect
 
@@ -67,5 +67,22 @@ def table_view_dag():
     dag.connect(st, sel_st, Connection('out_df', 'in_df'))
 
     return dag
-    
+
+def static_view_dag():
+    """Load a dataframe from file and display in a panel table."""
+
+    sdf = StaticDataFrame(name='Load DataFrame')
+    st = SimpleTableSelect(name='View Table')
+    sel_st = SimpleTable(name='Selection')
+
+    DOC = '''# Table viewer
+
+    Load a dataframe from a file and display the data as a table.
+    '''
+
+    dag = PanelDag(doc=DOC, title='Table')
+    dag.connect(sdf, st, Connection('out_df', 'in_df'))
+    dag.connect(st, sel_st, Connection('out_df', 'in_df'))
+
+    return dag
 

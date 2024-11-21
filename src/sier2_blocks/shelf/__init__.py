@@ -8,11 +8,13 @@ def blocks() -> list[Info]:
         Info('sier2_blocks.blocks.HvPoints', 'A Holoviews Points chart'),
         Info('sier2_blocks.blocks.HvPointsSelect', 'A Holoviews Points chart that passes on selections'),
         Info('sier2_blocks.blocks.HvHist', 'A Holoviews Histogram chart'),
+        Info('sier2_blocks.blocks.StaticDataFrame', 'Static test dataframe')
     ]
 
 def dags() -> list[Info]:
     return [
         Info('sier2_blocks.dags.hv_points_dag', 'Load and plot a dataframe as points'),
-        Info('sier2_blocks.dags.table_view_dag', 'Load a dataframe from file and display in a panel table'),
         Info('sier2_blocks.dags.hv_hist_dag', 'Load a dataframe and plot a histogram.'),
+        Info('sier2_blocks.dags.table_view_dag', 'Load a dataframe from file and display in a panel table'),
+        Info('sier2_blocks.dags.static_view_dag', 'Load a static dataframe and display in a panel table'),
     ]
