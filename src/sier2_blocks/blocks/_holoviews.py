@@ -86,8 +86,6 @@ class HvPointsSelect(InputBlock):
         self.x_sel = plottable_cols[0]
         self.y_sel = plottable_cols[1]
 
-        print(self.param)
-
     def execute(self):
         self.out_df = self.in_df.loc[self.selection.index]
 

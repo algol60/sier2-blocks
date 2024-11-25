@@ -66,5 +66,8 @@ class StaticDataFrame(InputBlock):
     def execute(self):
         self.out_df = pd.DataFrame(data = {
             "calories": [420, 380, 390],
-            "duration": [50, 40, 45]
+            "duration": [50, 40, 45],
+            "Latitude": [0, 45, 70],
+            "Longitude": [15, 30, 60],
+            "Name": ['a', 'b', 'c'],
         })

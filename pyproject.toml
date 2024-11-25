@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sier2-blocks"
-version = "0.4"
+version = "0.5"
 description = "Blocks for sier2"
 authors = ["algol60 <algol60@users.noreply.github.com>"]
 readme = "README.rst"
@@ -21,7 +21,7 @@ holoviews = "^1.18.3"
 panel = ">=1.4.4"
 param = ">=2.1.0"
 
-sier2=">=0.23"
+sier2=">=0.24"
 
 [tool.poetry.plugins."sier2.library"]
 export = "sier2_blocks.shelf"
@@ -29,7 +29,8 @@ export = "sier2_blocks.shelf"
 [[tool.mypy.overrides]]
 module = [
     "holoviews",
-    "param"
+    "param",
+    "geoviews",
 ]
 ignore_missing_imports = true
 
