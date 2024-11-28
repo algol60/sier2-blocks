@@ -81,6 +81,10 @@ class ExportDataFrame(Block):
 
     def __init__(self, *args, default_filename='', **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.size_msg = pn.widgets.StaticText(
+            value=''
+        )
         
         self.i_fn = pn.widgets.TextInput.from_param(
             self.param.in_file_name,
@@ -111,6 +115,8 @@ class ExportDataFrame(Block):
         self.i_fn.param.watch(update, 'value_input')
 
     def execute(self):
+        self.size_msg.value = f'Saving data frame of size {self.in_df.shape}. Large files may cause issues.'
+        
         sio = StringIO()
         self.in_df.to_csv(sio)
         sio.seek(0)
@@ -122,6 +128,10 @@ class ExportDataFrame(Block):
             self.filedl.disabled = False
         
     def __panel__(self):    
-        return pn.Row(self.i_fn, pn.widgets.StaticText(value='.csv', name=''), self.filedl)
+        return pn.Column(
+            self.size_msg,
+            pn.Row(self.i_fn, pn.widgets.StaticText(value='.csv', name='')),
+            self.filedl,
+        )
 
     
