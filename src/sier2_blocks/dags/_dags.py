@@ -1,4 +1,4 @@
-from ..blocks._io import LoadDataFrame, StaticDataFrame
+from ..blocks._io import LoadDataFrame, StaticDataFrame, ExportDataFrame
 from ..blocks._view import SimpleTable, SimpleTableSelect
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
 from ..blocks._geoviews import GeoPoints, GeoPointsSelect
@@ -107,3 +107,19 @@ def static_view_dag():
 
     return dag
 
+def save_csv_dag():
+    """Load a dataframe from file and save a csv."""
+    sdf = StaticDataFrame(name='Load DataFrame')
+    st = SimpleTableSelect(name='View Table')
+    edf = ExportDataFrame(name='Export')
+
+    DOC = '''# Table viewer
+
+    Load a dataframe from file and save a csv.
+    '''
+
+    dag = PanelDag(doc=DOC, title='Table')
+    dag.connect(sdf, st, Connection('out_df', 'in_df'))
+    dag.connect(st, edf, Connection('out_df', 'in_df'))
+
+    return dag
