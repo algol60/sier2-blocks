@@ -108,14 +108,14 @@ def static_view_dag():
     return dag
 
 def save_csv_dag():
-    """Load a dataframe from file and save a csv."""
+    """Load a dataframe from file and download."""
     sdf = StaticDataFrame(name='Load DataFrame')
     st = SimpleTableSelect(name='View Table')
     edf = ExportDataFrame(name='Export')
 
     DOC = '''# Table viewer
 
-    Load a dataframe from file and save a csv.
+    Load a dataframe from file and download.
     '''
 
     dag = PanelDag(doc=DOC, title='Table')

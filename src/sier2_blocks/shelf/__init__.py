@@ -24,6 +24,6 @@ def dags() -> list[Info]:
         Info('sier2_blocks.dags.hv_points_dag', 'Load and plot a dataframe as points'),
         Info('sier2_blocks.dags.hv_hist_dag', 'Load a dataframe and plot a histogram'),
         Info('sier2_blocks.dags.geo_points_dag', 'Load and plot a dataframe as geo points'),
-        Info('sier2_blocks.dags.save_csv_dag', 'Load and save a csv file'),
+        Info('sier2_blocks.dags.save_csv_dag', 'Load and export a dataframe'),
         
     ]
