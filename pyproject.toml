@@ -31,6 +31,7 @@ module = [
     "holoviews",
     "param",
     "geoviews",
+    "xlsxwriter",
 ]
 ignore_missing_imports = true
 
