@@ -1,9 +1,7 @@
 import param
 import pandas as pd
 import panel as pn
-from sier2 import InputBlock, Block
-
-pn.extension('tabulator')
+from sier2 import Block
 
 class SimpleTable(Block):
     """ Simple Table Viewer
@@ -15,7 +13,7 @@ class SimpleTable(Block):
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, block_pause_execution=True, **kwargs)
         self.tabulator = pn.widgets.Tabulator(pd.DataFrame(), name='DataFrame', page_size=20, pagination='local')
 
     def execute(self):
@@ -29,7 +27,7 @@ class SimpleTable(Block):
     def __panel__(self):
         return self.tabulator
 
-class SimpleTableSelect(InputBlock):
+class SimpleTableSelect(Block):
     """ Simple Table Selection
 
     Make a tabulator to display an input table.
@@ -40,7 +38,7 @@ class SimpleTableSelect(InputBlock):
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, continue_label='Push Selection', **kwargs)
+        super().__init__(*args, block_pause_execution=True, continue_label='Push Selection', **kwargs)
         self.tabulator = pn.widgets.Tabulator(pd.DataFrame(), name='DataFrame', page_size=20, pagination='local')
 
     def prepare(self):
@@ -48,7 +46,7 @@ class SimpleTableSelect(InputBlock):
             self.tabulator.value = self.in_df
         else:
             self.tabulator.value = pd.DataFrame()
-    
+
     def execute(self):
         self.out_df = self.tabulator.selected_dataframe
 

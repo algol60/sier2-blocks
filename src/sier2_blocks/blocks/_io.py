@@ -9,13 +9,13 @@ import param
 import pandas as pd
 import panel as pn
 
-from sier2 import InputBlock, Block
+from sier2 import Block
 from pathlib import Path
 from io import StringIO, BytesIO
 
-class LoadDataFrame(InputBlock):
+class LoadDataFrame(Block):
     """ GUI import from csv/excel file.
-    
+
     """
 
     # Unfortunately, file selection in Panel is dodgy.
@@ -26,23 +26,23 @@ class LoadDataFrame(InputBlock):
     out_df = param.DataFrame()
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
+        super().__init__(block_pause_execution=True, *args, **kwargs)
+
         self.i_if = pn.widgets.FileInput.from_param(
             self.param.in_file,
             accept='.csv,.xlsx,.xls',
             multiple=False
         )
-    
+
     def execute(self):
         pn.state.notifications.info('Reading file', duration=5_000)
-        
+
         try:
             if self.i_if.filename.endswith('.csv'):
                 self.out_df = pd.read_csv(StringIO(self.in_file.decode('utf-8')), header=self.in_header_row)
             elif self.i_if.filename.endswith('.xlsx') or self.i_if.filename.endswith('.xls'):
                 self.out_df = pd.read_excel(BytesIO(self.in_file), header=self.in_header_row)
-                
+
         except Exception as e:
             pn.state.notifications.error('Error reading csv. Check logs for more information.', duration=10_000)
             self.logger.error(f'{e}')
@@ -57,11 +57,11 @@ class LoadDataFrame(InputBlock):
 
 class StaticDataFrame(InputBlock):
     """ Import static data frame for testing dags.
-    
+
     """
 
     out_df = param.DataFrame()
-    
+
     def execute(self):
         self.out_df = pd.DataFrame(data = {
             "calories": [420, 380, 390],
@@ -73,7 +73,7 @@ class StaticDataFrame(InputBlock):
 
 class ExportDataFrame(Block):
     """ Export a dataframe to a csv or xlsx.
-    
+
     """
 
     in_df = param.DataFrame()
@@ -85,28 +85,28 @@ class ExportDataFrame(Block):
         self.size_msg = pn.widgets.StaticText(
             value=''
         )
-        
+
         self.i_fn = pn.widgets.TextInput.from_param(
             self.param.in_file_name,
             placeholder='Output file name',
             value=default_filename,
             name='Output file name (without extension)'
         )
-        
+
         self.csvdl = pn.widgets.FileDownload(
             callback=self.download_csv,
-            button_type='success', 
+            button_type='success',
             filename='',
             label='Download .csv'
         )
-        
+
         self.xlsxdl = pn.widgets.FileDownload(
             callback=self.download_xlsx,
-            button_type='success', 
+            button_type='success',
             filename='',
             label='Download .xlsx'
         )
-        
+
         self.csvdl.disabled = True
         self.xlsxdl.disabled = True
 
@@ -123,7 +123,7 @@ class ExportDataFrame(Block):
             else:
                 self.xlsxdl.disabled = True
                 self.csvdl.disabled = True
-        
+
         self.i_fn.param.watch(update_name, 'value_input')
 
     def download_csv(self):
@@ -148,12 +148,11 @@ class ExportDataFrame(Block):
         if self.i_fn.value_input:
             self.csvdl.disabled = False
             self.xlsxdl.disabled = False
-        
-    def __panel__(self):    
+
+    def __panel__(self):
         return pn.Column(
             self.size_msg,
             self.i_fn,
             pn.Row(self.csvdl, self.xlsxdl),
         )
 
-    
