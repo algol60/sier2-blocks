@@ -28,6 +28,12 @@ class SimpleTable(Block):
 
     def __panel__(self):
         return self.tabulator
+        # CODE REVIEW
+        # return pn.Param(
+        #     self,
+        #     parameters=['out_df'],
+        #     widgets={'out_df': {'type': pn.widgets.Tabulator, 'page_size':20, 'pagination':'local', name='DataFrame'}}
+        # )
 
 class SimpleTableSelect(InputBlock):
     """ Simple Table Selection

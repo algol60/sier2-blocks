@@ -12,18 +12,21 @@ class HvPoints(Block):
 
     in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
     out_df = param.DataFrame(doc='Output pandas dataframe')
-
+    
+    x_sel = param.ObjectSelector()
+    y_sel = param.ObjectSelector()
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
         self.hv_pane.object=self._produce_plot
 
-    x_sel = param.ObjectSelector()
-    y_sel = param.ObjectSelector()
-    
     @param.depends('in_df', 'x_sel', 'y_sel')
     def _produce_plot(self):
+        # if all(map(lambda x: x is not None, [self.in_df, self.x_sell, self.y_sel]))
+        # if all(p is not None for p in [self.in_df, self.x_sell, self.y_sel])
+        # if None not in (self.in_df, self.x_sel, self.y_sel) <- WINNER
         if self.in_df is not None and self.x_sel is not None and self.y_sel is not None:
             return hv.Points(self.in_df, kdims=[self.x_sel, self.y_sel])
 
@@ -32,7 +35,7 @@ class HvPoints(Block):
 
     def execute(self):
         plottable_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']
-        
+        # CR: Chceck len of plottable cols to make sure there are at least 1 plottable columns
         self.param['x_sel'].objects = plottable_cols
         self.param['y_sel'].objects = plottable_cols
         self.x_sel = plottable_cols[0]

@@ -4,14 +4,15 @@
 #
 
 import os
-import param
-
-import pandas as pd
-import panel as pn
-
-from sier2 import InputBlock, Block
 from pathlib import Path
 from io import StringIO, BytesIO
+
+import param
+import panel as pn
+import pandas as pd
+
+from sier2 import InputBlock, Block
+
 
 class LoadDataFrame(InputBlock):
     """ GUI import from csv/excel file.
@@ -44,17 +45,28 @@ class LoadDataFrame(InputBlock):
                 self.out_df = pd.read_excel(BytesIO(self.in_file), header=self.in_header_row)
                 
         except Exception as e:
-            pn.state.notifications.error('Error reading csv. Check logs for more information.', duration=10_000)
-            self.logger.error(f'{e}')
+            pn.state.notifications.error(f'Error reading {self.i_if.filename}. Check sidebar logs for more information.', duration=10_000)
+            # Noting that it might be handy to include a bit more info in the logged message
+            self.logger.error(str(e)) # or pass directly to logger 
+            #TODO: add feature to logger to send logs to Dag developer
+            #TODO: remind Peter of the above
 
     def __panel__(self):
         i_hr = pn.widgets.IntInput.from_param(
             self.param.in_header_row,
         )
-
+        # Dario prefers the alternative way of declaring specific widgets for variables
+        # layout = pn.Param(
+        #     self,
+        #     parameters=['in_header_row', 'another_param', 'another_one'],
+        #     widgets={
+        #         'in_header_row': pn.widgets.IntInput
+        #     }
+        # )
         return pn.Column(self.i_if, i_hr)
 
-
+# TODO: Faker block to generate testing values
+# Consider storing these blocks in a different dir
 class StaticDataFrame(InputBlock):
     """ Import static data frame for testing dags.
     
@@ -70,21 +82,21 @@ class StaticDataFrame(InputBlock):
             "Longitude": [15, 30, 60],
             "Name": ['a', 'b', 'c'],
         })
-
+#class SaveDataFrame(Block):
+# Consider adding an option to download a subset or head or sample of data.
 class ExportDataFrame(Block):
-    """ Export a dataframe to a csv or xlsx.
-    
+    """ Save a dataframe to a csv or xlsx.   
     """
 
     in_df = param.DataFrame()
     in_file_name = param.String()
-
+    # Preferred to use default_filename=None and then set a default value like default_filename = '' if not default_filename else default_filename
     def __init__(self, *args, default_filename='', **kwargs):
         super().__init__(*args, **kwargs)
 
         self.size_msg = pn.widgets.StaticText(
             value=''
-        )
+        )#? what is this about
         
         self.i_fn = pn.widgets.TextInput.from_param(
             self.param.in_file_name,
@@ -141,6 +153,7 @@ class ExportDataFrame(Block):
         return buf
 
     def execute(self):
+        # Maybe this should be a pn global alert and also only trigger for files of unusually large size?
         self.size_msg.value = f'Saving data frame of size {self.in_df.shape}. Large files may cause issues.'
 
         # Only allow file download if we've set an input.
