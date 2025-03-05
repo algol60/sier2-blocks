@@ -44,17 +44,22 @@ class LoadDataFrame(Block):
                 self.out_df = pd.read_excel(BytesIO(self.in_file), header=self.in_header_row)
 
         except Exception as e:
-            pn.state.notifications.error('Error reading csv. Check logs for more information.', duration=10_000)
-            self.logger.error(f'{e}')
+            pn.state.notifications.error(f'Error reading {self.i_if.filename}. Check sidebar logs for more information.', duration=10_000)
+            self.logger.error(str(e))
+            #TODO: add feature to logger to send logs to Dag developer
 
     def __panel__(self):
-        i_hr = pn.widgets.IntInput.from_param(
-            self.param.in_header_row,
+        i_hr = pn.Param(
+            self,
+            parameters=['in_header_row'],
+            widgets={
+                'in_header_row': pn.widgets.IntInput
+            }
         )
-
         return pn.Column(self.i_if, i_hr)
 
-
+# TODO: Faker block to generate testing values
+# Consider storing these blocks in a different dir
 class StaticDataFrame(InputBlock):
     """ Import static data frame for testing dags.
 
@@ -71,17 +76,24 @@ class StaticDataFrame(InputBlock):
             "Name": ['a', 'b', 'c'],
         })
 
-class ExportDataFrame(Block):
-    """ Export a dataframe to a csv or xlsx.
-
+class SaveDataFrame(Block):
+    """ Save a dataframe to a csv or xlsx.   
     """
 
     in_df = param.DataFrame()
     in_file_name = param.String()
-
-    def __init__(self, *args, default_filename='', **kwargs):
+    in_subset_len = param.Integer(label='Records to save', default=None)
+    in_subset_type = param.String(label='Subset type', default='All')
+    
+    # Preferred to use default_filename=None and then set a default value like default_filename = '' if not default_filename else default_filename
+    def __init__(self, *args, default_filename=None, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # We want to dynamically enable/disable buttons as the user sets the filename and subset info, 
+        # so we declare widgets explicitly.
+
+        # We should tell the user how big the file is going to be, just in case.
+        #
         self.size_msg = pn.widgets.StaticText(
             value=''
         )
@@ -89,10 +101,24 @@ class ExportDataFrame(Block):
         self.i_fn = pn.widgets.TextInput.from_param(
             self.param.in_file_name,
             placeholder='Output file name',
-            value=default_filename,
+            value='' if not default_filename else default_filename,
             name='Output file name (without extension)'
         )
 
+        self.i_sub_l = pn.widgets.IntInput.from_param(
+            self.param.in_subset_len, 
+            value=100, 
+            step=10, 
+            start=0,
+            disabled=True,
+        )
+
+        self.i_sub_t = pn.widgets.ToggleGroup.from_param(
+            self.param.in_subset_type,
+            options=['All', 'Head', 'Tail', 'Random sample'], 
+            behavior="radio",
+        )
+        
         self.csvdl = pn.widgets.FileDownload(
             callback=self.download_csv,
             button_type='success',
@@ -126,22 +152,57 @@ class ExportDataFrame(Block):
 
         self.i_fn.param.watch(update_name, 'value_input')
 
+        # Make sure we disable the subset length selection if we're saving everything.
+        def update_subset(event):
+            if self.i_sub_t.value == 'All':
+                self.i_sub_l.value = self.in_df.shape[0]
+                self.i_sub_l.disabled = True
+            else:
+                self.i_sub_l.value = 100
+                self.i_sub_l.disabled = False
+
+        self.i_sub_t.param.watch(update_subset, 'value')
+
     def download_csv(self):
         buf = StringIO()
-        self.in_df.to_csv(buf)
+        
+        if self.in_subset_type == 'All':
+            self.in_df.to_csv(buf)
+        elif self.in_subset_type == 'Head':
+            self.in_df.head(self.in_subset_len).to_csv(buf)
+        elif self.in_subset_type == 'Tail':
+            self.in_df.tail(self.in_subset_len).to_csv(buf)
+        elif self.in_subset_type == 'Random sample':
+            self.in_df.sample(self.in_subset_len).to_csv(buf)
+        else:
+            # We shouldn't ever end up here.
+            raise NotImplementedError
+        
         buf.seek(0)
         return buf
 
     def download_xlsx(self):
         buf = BytesIO()
         writer = pd.ExcelWriter(buf, engine='xlsxwriter')
-        self.in_df.to_excel(writer)
+        
+        if self.in_subset_type == 'All':
+            self.in_df.to_excel(writer)
+        elif self.in_subset_type == 'Head':
+            self.in_df.head(self.in_subset_len).to_excel(writer)
+        elif self.in_subset_type == 'Tail':
+            self.in_df.tail(self.in_subset_len).to_excel(writer)
+        elif self.in_subset_type == 'Random sample':
+            self.in_df.sample(self.in_subset_len).to_excel(writer)
+        else:
+            # We shouldn't ever end up here.
+            raise NotImplementedError
+            
         writer.close()
         buf.seek(0)
         return buf
 
     def execute(self):
-        self.size_msg.value = f'Saving data frame of size {self.in_df.shape}. Large files may cause issues.'
+        self.size_msg.value = f'Saving data frame of size {self.in_df.shape}.'
 
         # Only allow file download if we've set an input.
         #
@@ -149,10 +210,14 @@ class ExportDataFrame(Block):
             self.csvdl.disabled = False
             self.xlsxdl.disabled = False
 
+        self.i_sub_l.value = self.in_df.shape[0]
+        
     def __panel__(self):
         return pn.Column(
             self.size_msg,
             self.i_fn,
+            self.i_sub_t,
+            self.i_sub_l,
             pn.Row(self.csvdl, self.xlsxdl),
         )
 

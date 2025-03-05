@@ -4,8 +4,7 @@ def blocks() -> list[Info]:
     return [
         Info('sier2_blocks.blocks.LoadDataFrame', 'Load a dataframe from a file'),
         Info('sier2_blocks.blocks.StaticDataFrame', 'Static test dataframe'),
-        Info('sier2_blocks.blocks.ExportDataFrame', 'Export a dataframe'),
-
+        Info('sier2_blocks.blocks.SaveDataFrame', 'Save a dataframe'),
         Info('sier2_blocks.blocks.SimpleTable', 'Display a simple table'),
         Info('sier2_blocks.blocks.SimpleTableSelect', 'Display a simple table and pass selections on'),
 

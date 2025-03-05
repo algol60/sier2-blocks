@@ -1,4 +1,4 @@
-from ..blocks._io import LoadDataFrame, StaticDataFrame, ExportDataFrame
+from ..blocks._io import LoadDataFrame, StaticDataFrame, SaveDataFrame
 from ..blocks._view import SimpleTable, SimpleTableSelect
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
 from ..blocks._geoviews import GeoPoints, GeoPointsSelect
@@ -111,7 +111,7 @@ def save_csv_dag():
     """Load a dataframe from file and download."""
     sdf = StaticDataFrame(name='Load DataFrame')
     st = SimpleTableSelect(name='View Table')
-    edf = ExportDataFrame(name='Export')
+    edf = SaveDataFrame(name='Export')
 
     DOC = '''# Table viewer
 
