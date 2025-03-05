@@ -32,8 +32,8 @@ class SimpleTableSelect(Block):
     in_df = param.DataFrame(doc='Input pandas dataframe')
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, block_pause_execution=True, continue_label='Push Selection', **kwargs)
+    def __init__(self, block_pause_execution=True, *args, **kwargs):
+        super().__init__(*args, block_pause_execution=block_pause_execution, continue_label='Continue With Selection', **kwargs)
         self.tabulator = pn.widgets.Tabulator(pd.DataFrame(), name='DataFrame', page_size=20, pagination='local')
 
     def prepare(self):

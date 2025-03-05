@@ -57,8 +57,12 @@ class HvPointsSelect(Block):
     in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, block_pause_execution=True, **kwargs)
+    def __init__(self, block_pause_execution=True, *args, **kwargs):
+        super().__init__(
+            block_pause_execution=block_pause_execution,
+            continue_label='Continue With Selection',
+            *args, **kwargs,
+        )
         
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
         self.selection = hv.streams.Selection1D()
