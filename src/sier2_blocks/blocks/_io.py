@@ -60,7 +60,7 @@ class LoadDataFrame(Block):
 
 # TODO: Faker block to generate testing values
 # Consider storing these blocks in a different dir
-class StaticDataFrame(InputBlock):
+class StaticDataFrame(Block):
     """ Import static data frame for testing dags.
 
     """

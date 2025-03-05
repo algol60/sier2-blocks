@@ -1,4 +1,4 @@
-from sier2 import Block, InputBlock
+from sier2 import Block
 import param
 
 import panel as pn
@@ -86,14 +86,14 @@ class GeoPoints(Block):
             self.hv_pane
         )
 
-class GeoPointsSelect(InputBlock):
+class GeoPointsSelect(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
 
     in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, block_pause_execution=True, **kwargs)
 
         self.map = gvts.CartoMidnight()
         

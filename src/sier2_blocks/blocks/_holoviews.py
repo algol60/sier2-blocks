@@ -1,4 +1,4 @@
-from sier2 import Block, InputBlock
+from sier2 import Block
 import param
 
 import panel as pn
@@ -51,14 +51,14 @@ class HvPoints(Block):
             self.hv_pane
         )
 
-class HvPointsSelect(InputBlock):
+class HvPointsSelect(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
 
     in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, block_pause_execution=True, **kwargs)
         
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
         self.selection = hv.streams.Selection1D()
