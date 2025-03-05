@@ -19,15 +19,12 @@ class HvPoints(Block):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
         self.hv_pane.object=self._produce_plot
 
     @param.depends('in_df', 'x_sel', 'y_sel')
     def _produce_plot(self):
-        # if all(map(lambda x: x is not None, [self.in_df, self.x_sell, self.y_sel]))
-        # if all(p is not None for p in [self.in_df, self.x_sell, self.y_sel])
-        # if None not in (self.in_df, self.x_sel, self.y_sel) <- WINNER
-        if self.in_df is not None and self.x_sel is not None and self.y_sel is not None:
+        if None not in (self.in_df, self.x_sel, self.y_sel):
             return hv.Points(self.in_df, kdims=[self.x_sel, self.y_sel])
 
         else:
@@ -35,16 +32,17 @@ class HvPoints(Block):
 
     def execute(self):
         plottable_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']
-        # CR: Chceck len of plottable cols to make sure there are at least 1 plottable columns
-        self.param['x_sel'].objects = plottable_cols
-        self.param['y_sel'].objects = plottable_cols
-        self.x_sel = plottable_cols[0]
-        self.y_sel = plottable_cols[1]
+        if len(plottable_cols)<2:
+            pn.state.notifications.error(f'Error plotting. Could not find two columns with numeric data.', duration=10_000)
+        else:
+            self.param['x_sel'].objects = plottable_cols
+            self.param['y_sel'].objects = plottable_cols
+            self.x_sel = plottable_cols[0]
+            self.y_sel = plottable_cols[1]
 
         self.out_df = self.in_df
 
     def __panel__(self):
-        # return self.hv_pane
         return pn.Column(
             pn.Row(
                 self.param['x_sel'],
@@ -62,7 +60,7 @@ class HvPointsSelect(InputBlock):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
         self.selection = hv.streams.Selection1D()
         self.hv_pane.object=self._produce_plot
 
@@ -83,17 +81,18 @@ class HvPointsSelect(InputBlock):
 
     def prepare(self):
         plottable_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']
-        
-        self.param['x_sel'].objects = plottable_cols
-        self.param['y_sel'].objects = plottable_cols
-        self.x_sel = plottable_cols[0]
-        self.y_sel = plottable_cols[1]
+        if len(plottable_cols)<2:
+            pn.state.notifications.error(f'Error plotting. Could not find two columns with numeric data.', duration=10_000)
+        else:
+            self.param['x_sel'].objects = plottable_cols
+            self.param['y_sel'].objects = plottable_cols
+            self.x_sel = plottable_cols[0]
+            self.y_sel = plottable_cols[1]
 
     def execute(self):
         self.out_df = self.in_df.loc[self.selection.index]
 
     def __panel__(self):
-        # return self.hv_pane
         return pn.Column(
             pn.Row(
                 self.param['x_sel'],
@@ -169,7 +168,6 @@ class HvHist(Block):
         self.out_df = self.in_df
 
     def __panel__(self):
-        # return self.hv_pane
         return pn.Column(
             pn.Row(
                 self.param['column'],
