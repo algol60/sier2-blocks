@@ -21,7 +21,7 @@ holoviews = "^1.18.3"
 panel = ">=1.4.4"
 param = ">=2.1.0"
 
-sier2=">=0.24"
+sier2=">=0.28"
 
 [tool.poetry.plugins."sier2.library"]
 export = "sier2_blocks.shelf"
