@@ -92,7 +92,7 @@ class GeoPointsSelect(Block):
     in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
     out_df = param.DataFrame(doc='Output pandas dataframe')
 
-    def __init__(self, block_pause_execution=True, *args, **kwargs):
+    def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, **kwargs)
 
         self.map = gvts.CartoMidnight()
