@@ -1,18 +1,14 @@
 from ..blocks._io import LoadDataFrame, StaticDataFrame, SaveDataFrame
 from ..blocks._view import SimpleTable, SimpleTableSelect
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
-from ..blocks._geoviews import GeoPoints, GeoPointsSelect
+from ..blocks._geo import ReadGeoPoints, GeoPoints, GeoPointsSelect
 
 from sier2 import Connection
 from sier2.panel import PanelDag
 
-DOC = '''# Points chart
-
-Load a dataframe from a file and display a Points chart.
-'''
-
 def geo_points_dag():
-    sdf = StaticDataFrame(name='Load DataFrame')
+    sdf = StaticDataFrame(name='Load DataFrame', block_pause_execution=True)
+    rgp = ReadGeoPoints(name='Spatialize DataFrame')
     gps = GeoPointsSelect(name='Plot Points')
     gp = GeoPoints(name='View Selection')
 
@@ -22,11 +18,14 @@ def geo_points_dag():
     '''
 
     dag = PanelDag(doc=DOC, site='Chart', title='Geo Points')
-    dag.connect(sdf, gps,
+    dag.connect(sdf, rgp,
         Connection('out_df', 'in_df'),
     )
+    dag.connect(rgp, gps,
+        Connection('out_gdf', 'in_gdf'),
+    )
     dag.connect(gps, gp,
-        Connection('out_df', 'in_df'),
+        Connection('out_gdf', 'in_gdf'),
     )
 
     return dag

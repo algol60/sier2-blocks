@@ -25,7 +25,7 @@ class LoadDataFrame(Block):
     in_header_row = param.Integer(label='Header row', default=0)
     out_df = param.DataFrame()
 
-    def __init__(self, block_pause_execution=True, *args, **kwargs):
+    def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, **kwargs)
 
         self.i_if = pn.widgets.FileInput.from_param(

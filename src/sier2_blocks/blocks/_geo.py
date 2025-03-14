@@ -4,6 +4,7 @@ import param
 import panel as pn
 import numpy as np
 
+import geopandas as gpd
 import geoviews as gv
 import holoviews as hv
 import geoviews.tile_sources as gvts
@@ -40,11 +41,44 @@ def guess_lat_col(cols):
     #
     return cols[1]
 
-class GeoPoints(Block):
+class ReadGeoPoints(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
 
     in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
-    out_df = param.DataFrame(doc='Output pandas dataframe')
+    in_lat_col = param.ObjectSelector(doc='Latitude column name')
+    in_lon_col = param.ObjectSelector(doc='Longitude column name')
+    out_gdf = param.DataFrame(doc='Output pandas dataframe')
+
+    def __init__(self, *args, block_pause_execution=True, **kwargs):
+        super().__init__(*args, block_pause_execution=block_pause_execution, **kwargs)
+
+    def prepare(self):
+        coordinate_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']
+        self.param['in_lat_col'].objects = coordinate_cols
+        self.param['in_lon_col'].objects = coordinate_cols
+
+        self.in_lat_col = guess_lat_col(coordinate_cols)
+        self.in_lon_col = guess_lon_col(coordinate_cols)
+        
+    def execute(self):
+        geometry = gpd.points_from_xy(self.in_df[self.in_lon_col], self.in_df[self.in_lat_col])
+        self.out_gdf = gpd.GeoDataFrame(self.in_df, geometry=geometry)
+
+    def __panel__(self):
+        # return self.hv_pane
+        return pn.Param(
+            self,
+            parameters=[
+                'in_lat_col',
+                'in_lon_col',
+            ]
+        )
+
+class GeoPoints(Block):
+    """The Points element visualizes as markers placed in a space of two independent variables."""
+
+    in_gdf = param.DataFrame(doc='A pandas dataframe containing x,y values')
+    out_gdf = param.DataFrame(doc='Output pandas dataframe')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,44 +87,25 @@ class GeoPoints(Block):
         
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
         self.hv_pane.object=self._produce_plot
-
-    x_sel = param.ObjectSelector()
-    y_sel = param.ObjectSelector()
     
-    @param.depends('in_df', 'x_sel', 'y_sel')
+    @param.depends('in_gdf')
     def _produce_plot(self):
-        if self.in_df is not None and self.x_sel is not None and self.y_sel is not None:
-            return self.map * gv.Points(self.in_df, kdims=[self.x_sel, self.y_sel])
-
+        if self.in_gdf is not None:
+            return self.map * gv.Points(self.in_gdf)
         else:
             return self.map
 
     def execute(self):
-        plottable_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']
-        
-        self.param['x_sel'].objects = plottable_cols
-        self.param['y_sel'].objects = plottable_cols
-
-        self.x_sel = guess_lon_col(plottable_cols)
-        self.y_sel = guess_lat_col(plottable_cols)
-
-        self.out_df = self.in_df
+        self.out_gdf = self.in_gdf
 
     def __panel__(self):
-        # return self.hv_pane
-        return pn.Column(
-            pn.Row(
-                self.param['x_sel'],
-                self.param['y_sel']
-            ),
-            self.hv_pane
-        )
+        return self.hv_pane
 
 class GeoPointsSelect(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
 
-    in_df = param.DataFrame(doc='A pandas dataframe containing x,y values')
-    out_df = param.DataFrame(doc='Output pandas dataframe')
+    in_gdf = param.DataFrame(doc='A pandas dataframe containing x,y values')
+    out_gdf = param.DataFrame(doc='Output pandas dataframe')
 
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, **kwargs)
@@ -100,40 +115,20 @@ class GeoPointsSelect(Block):
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
         self.selection = hv.streams.Selection1D()
         self.hv_pane.object=self._produce_plot
-
-    x_sel = param.ObjectSelector()
-    y_sel = param.ObjectSelector()
     
-    @param.depends('in_df', 'x_sel', 'y_sel')
+    @param.depends('in_gdf')
     def _produce_plot(self):
-        if self.in_df is not None and self.x_sel is not None and self.y_sel is not None:
-            scatter = self.map * gv.Points(self.in_df, kdims=[self.x_sel, self.y_sel])
-
+        if self.in_gdf is not None:
+            return self.map * gv.Points(self.in_gdf)
         else:
-            scatter = self.map
+            return self.map
 
         scatter = scatter.opts(tools=['box_select'])
         self.selection.source = scatter
         return scatter
 
-    def prepare(self):
-        plottable_cols = [c for c in self.in_df.columns if self.in_df[c].dtype.kind in 'iuf']
-        
-        self.param['x_sel'].objects = plottable_cols
-        self.param['y_sel'].objects = plottable_cols
-        
-        self.x_sel = guess_lon_col(plottable_cols)
-        self.y_sel = guess_lat_col(plottable_cols)
-
     def execute(self):
-        self.out_df = self.in_df.loc[self.selection.index]
+        self.out_gdf = self.in_gdf.loc[self.selection.index]
 
     def __panel__(self):
-        # return self.hv_pane
-        return pn.Column(
-            pn.Row(
-                self.param['x_sel'],
-                self.param['y_sel']
-            ),
-            self.hv_pane
-        )
+        return self.hv_pane

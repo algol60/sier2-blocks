@@ -12,6 +12,7 @@ def blocks() -> list[Info]:
         Info('sier2_blocks.blocks.HvPointsSelect', 'A Holoviews Points chart that passes on selections'),
         Info('sier2_blocks.blocks.HvHist', 'A Holoviews Histogram chart'),
 
+        Info('sier2_blocks.blocks.ReadGeoPoints', 'Spatialize a data frame'),
         Info('sier2_blocks.blocks.GeoPoints', 'Geoviews Points chart'),
         Info('sier2_blocks.blocks.GeoPointsSelect', 'Geoviews Points chart that passes on selections'),
     ]
