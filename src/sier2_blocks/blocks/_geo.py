@@ -85,7 +85,7 @@ class GeoPoints(Block):
 
         self.map = gvts.CartoMidnight()
         
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)#'scale_both')
         self.hv_pane.object=self._produce_plot
     
     @param.depends('in_gdf')
@@ -112,7 +112,7 @@ class GeoPointsSelect(Block):
 
         self.map = gvts.CartoMidnight()
         
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')#'scale_both')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)#'scale_both')
         self.selection = hv.streams.Selection1D()
         self.hv_pane.object=self._produce_plot
     

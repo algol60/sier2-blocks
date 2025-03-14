@@ -19,7 +19,7 @@ class HvPoints(Block):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)
         self.hv_pane.object=self._produce_plot
 
     @param.depends('in_df', 'x_sel', 'y_sel')
@@ -64,7 +64,7 @@ class HvPointsSelect(Block):
             *args, **kwargs,
         )
         
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)
         self.selection = hv.streams.Selection1D()
         self.hv_pane.object=self._produce_plot
 
@@ -122,7 +122,7 @@ class HvHist(Block):
 
         # Make a pane to hold the plot.
         #
-        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width')
+        self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)
 
         # Make a widget to control the bins parameter.
         # We need this so we can disable it when using integer bins.
