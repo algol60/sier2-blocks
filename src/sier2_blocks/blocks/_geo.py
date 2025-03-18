@@ -76,14 +76,15 @@ class ReadGeoPoints(Block):
 
 class GeoPoints(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
+    # TODO add selection tools to toolbar.
 
-    in_gdf = param.DataFrame(doc='A pandas dataframe containing x,y values')
-    out_gdf = param.DataFrame(doc='Output pandas dataframe')
+    in_gdf = param.DataFrame(doc='A geo pandas dataframe containing a location column')
+    out_gdf = param.DataFrame(doc='Output geo pandas dataframe')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.map = gvts.CartoMidnight()
+        self.map = gvts.CartoMidnight().opts(active_tools=['wheel_zoom'])
         
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)#'scale_both')
         self.hv_pane.object=self._produce_plot
@@ -103,14 +104,15 @@ class GeoPoints(Block):
 
 class GeoPointsSelect(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
+    # TODO add selection tools to toolbar.
 
-    in_gdf = param.DataFrame(doc='A pandas dataframe containing x,y values')
-    out_gdf = param.DataFrame(doc='Output pandas dataframe')
+    in_gdf = param.DataFrame(doc='A geo pandas dataframe containing a location column')
+    out_gdf = param.DataFrame(doc='Output geo pandas dataframe')
 
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, **kwargs)
 
-        self.map = gvts.CartoMidnight()
+        self.map = gvts.CartoMidnight().opts(active_tools=['wheel_zoom'])
         
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)#'scale_both')
         self.selection = hv.streams.Selection1D()
