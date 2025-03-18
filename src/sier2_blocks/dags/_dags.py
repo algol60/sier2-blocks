@@ -11,6 +11,7 @@ def geo_points_dag():
     rgp = ReadGeoPoints(name='Spatialize DataFrame')
     gps = GeoPointsSelect(name='Plot Points')
     gp = GeoPoints(name='View Selection')
+    st = SimpleTable(name='View Table')
 
     DOC = '''# Geo points chart
     
@@ -26,6 +27,9 @@ def geo_points_dag():
     )
     dag.connect(gps, gp,
         Connection('out_gdf', 'in_gdf'),
+    )
+    dag.connect(gps, st,
+        Connection('out_gdf', 'in_df'),
     )
 
     return dag

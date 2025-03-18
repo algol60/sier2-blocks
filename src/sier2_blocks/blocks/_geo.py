@@ -1,4 +1,5 @@
 from sier2 import Block
+from sier2_blocks_config import config
 import param
 
 import panel as pn
@@ -10,6 +11,8 @@ import holoviews as hv
 import geoviews.tile_sources as gvts
 
 gv.extension('bokeh', inline=True)
+
+BASEMAP_URL = config()['basemap_url']
 
 def guess_lon_col(cols):
     """
@@ -76,7 +79,6 @@ class ReadGeoPoints(Block):
 
 class GeoPoints(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
-    # TODO add selection tools to toolbar.
 
     in_gdf = param.DataFrame(doc='A geo pandas dataframe containing a location column')
     out_gdf = param.DataFrame(doc='Output geo pandas dataframe')
@@ -84,17 +86,22 @@ class GeoPoints(Block):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.map = gvts.CartoMidnight().opts(active_tools=['wheel_zoom'])
-        
+        if BASEMAP_URL is not None:
+            self.map = gv.WMTS(BASEMAP_URL).opts(active_tools=['wheel_zoom'])
+        else:
+            self.map = gvts.CartoMidnight().opts(active_tools=['wheel_zoom'])
+
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)#'scale_both')
         self.hv_pane.object=self._produce_plot
     
     @param.depends('in_gdf')
     def _produce_plot(self):
         if self.in_gdf is not None:
-            return self.map * gv.Points(self.in_gdf)
+            plot = self.map * gv.Points(self.in_gdf)
         else:
-            return self.map
+            plot = self.map
+
+        return plot
 
     def execute(self):
         self.out_gdf = self.in_gdf
@@ -104,7 +111,6 @@ class GeoPoints(Block):
 
 class GeoPointsSelect(Block):
     """The Points element visualizes as markers placed in a space of two independent variables."""
-    # TODO add selection tools to toolbar.
 
     in_gdf = param.DataFrame(doc='A geo pandas dataframe containing a location column')
     out_gdf = param.DataFrame(doc='Output geo pandas dataframe')
@@ -112,24 +118,33 @@ class GeoPointsSelect(Block):
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, **kwargs)
 
-        self.map = gvts.CartoMidnight().opts(active_tools=['wheel_zoom'])
-        
+        if BASEMAP_URL is not None:
+            self.map = gv.WMTS(BASEMAP_URL).opts(
+                tools=['box_select', 'lasso_select'],
+                active_tools=['wheel_zoom'],
+            )
+        else:
+            self.map = gvts.CartoMidnight().opts(
+                tools=['box_select', 'lasso_select'],
+                active_tools=['wheel_zoom'],
+            )
+
         self.hv_pane = pn.pane.HoloViews(sizing_mode='stretch_width', min_height=600)#'scale_both')
         self.selection = hv.streams.Selection1D()
-        self.hv_pane.object=self._produce_plot
+        self.hv_pane.object = self._produce_plot
     
     @param.depends('in_gdf')
     def _produce_plot(self):
         if self.in_gdf is not None:
-            return self.map * gv.Points(self.in_gdf)
+            plot = self.map * gv.Points(self.in_gdf)
         else:
-            return self.map
+            plot = self.map
 
-        scatter = scatter.opts(tools=['box_select'])
-        self.selection.source = scatter
-        return scatter
+        self.selection.source = plot
+        return plot
 
     def execute(self):
+        print(self.selection.index)
         self.out_gdf = self.in_gdf.loc[self.selection.index]
 
     def __panel__(self):
