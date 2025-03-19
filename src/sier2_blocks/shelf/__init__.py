@@ -15,6 +15,9 @@ def blocks() -> list[Info]:
         Info('sier2_blocks.blocks.ReadGeoPoints', 'Spatialize a data frame'),
         Info('sier2_blocks.blocks.GeoPoints', 'Geoviews Points chart'),
         Info('sier2_blocks.blocks.GeoPointsSelect', 'Geoviews Points chart that passes on selections'),
+
+        Info('sier2_blocks.blocks.RunUMAP', 'Run data through UMAP to reduce dimensionality.'),
+        Info('sier2_blocks.blocks.ThisNotThat', 'Show a ThisNotThat interactive plot.'),
     ]
 
 def dags() -> list[Info]:
@@ -25,5 +28,5 @@ def dags() -> list[Info]:
         Info('sier2_blocks.dags.hv_hist_dag', 'Load a dataframe and plot a histogram'),
         Info('sier2_blocks.dags.geo_points_dag', 'Load and plot a dataframe as geo points'),
         Info('sier2_blocks.dags.save_csv_dag', 'Load and export a dataframe'),
-
+        Info('sier2_blocks.dags.datamap_dag', 'Load a dataframe and make a datamap'),
     ]

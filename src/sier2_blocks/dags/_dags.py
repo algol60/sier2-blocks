@@ -2,9 +2,28 @@ from ..blocks._io import LoadDataFrame, StaticDataFrame, SaveDataFrame
 from ..blocks._view import SimpleTable, SimpleTableSelect
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
 from ..blocks._geo import ReadGeoPoints, GeoPoints, GeoPointsSelect
+from ..blocks._datamap import RunUMAP, ThisNotThat
 
 from sier2 import Connection
 from sier2.panel import PanelDag
+
+def datamap_dag():
+    """Load a dataframe and make a datamap using UMAP and thisnotthat."""
+    ldf = LoadDataFrame(name='Load DataFrame')
+    umap = RunUMAP(name='UMAP')
+    tnt = ThisNotThat(name='TNT')
+
+    DOC = '''# UMAP Test
+
+    Testing
+    '''
+
+    dag = PanelDag(doc=DOC, title='UMAP')
+    dag.connect(ldf, umap, Connection('out_df', 'in_arr'))
+    dag.connect(umap, tnt, Connection('out_arr', 'in_map_data'))
+    dag.connect(ldf, tnt, Connection('out_df', 'in_df'))
+
+    return dag
 
 def geo_points_dag():
     sdf = StaticDataFrame(name='Load DataFrame', block_pause_execution=True)
