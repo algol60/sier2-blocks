@@ -202,7 +202,7 @@ class SaveDataFrame(Block):
         return buf
 
     def execute(self):
-        if self.in_df:
+        if self.in_df is not None:
             self.size_msg.value = f'Saving data frame of size {self.in_df.shape}.'
 
             # Only allow file download if we've set an input.
