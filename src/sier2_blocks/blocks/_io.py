@@ -202,15 +202,16 @@ class SaveDataFrame(Block):
         return buf
 
     def execute(self):
-        self.size_msg.value = f'Saving data frame of size {self.in_df.shape}.'
+        if self.in_df:
+            self.size_msg.value = f'Saving data frame of size {self.in_df.shape}.'
 
-        # Only allow file download if we've set an input.
-        #
-        if self.i_fn.value_input:
-            self.csvdl.disabled = False
-            self.xlsxdl.disabled = False
+            # Only allow file download if we've set an input.
+            #
+            if self.i_fn.value_input:
+                self.csvdl.disabled = False
+                self.xlsxdl.disabled = False
 
-        self.i_sub_l.value = self.in_df.shape[0]
+            self.i_sub_l.value = self.in_df.shape[0]
         
     def __panel__(self):
         return pn.Column(
