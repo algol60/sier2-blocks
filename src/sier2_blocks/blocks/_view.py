@@ -55,13 +55,10 @@ class DisplayFilteredTable(Block):
     in_df = param.DataFrame(doc='Input pandas dataframe')
     out_data = param.DataFrame(doc='Output pandas dataframe')
     out_cols_sel = param.ListSelector(doc='Select the columns that you wish to have displayed in the table below.')
-
-    
+ 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-    #https://github.com/bokeh/bokeh/issues/13268
-    #white tables are unreadable
     @param.depends('out_cols_sel', watch=True)
     def __produce_plot(self):
         if self.out_cols_sel is not None:
