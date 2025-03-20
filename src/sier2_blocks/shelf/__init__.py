@@ -3,8 +3,8 @@ from sier2 import Info
 def blocks() -> list[Info]:
     return [
         Info('sier2_blocks.blocks.LoadDataFrame', 'Load a dataframe from a file'),
-        Info('sier2_blocks.blocks.StaticDataFrame', 'Static test dataframe'),
         Info('sier2_blocks.blocks.SaveDataFrame', 'Save a dataframe'),
+        
         Info('sier2_blocks.blocks.SimpleTable', 'Display a simple table'),
         Info('sier2_blocks.blocks.SimpleTableSelect', 'Display a simple table and pass selections on'),
 
@@ -15,6 +15,9 @@ def blocks() -> list[Info]:
         Info('sier2_blocks.blocks.ReadGeoPoints', 'Spatialize a data frame'),
         Info('sier2_blocks.blocks.GeoPoints', 'Geoviews Points chart'),
         Info('sier2_blocks.blocks.GeoPointsSelect', 'Geoviews Points chart that passes on selections'),
+
+        Info('sier2_blocks.blocks.StaticDataFrame', 'Static test dataframe'),
+        Info('sier2_blocks.blocks.FakerData', 'Generate realistic fake data of various types'),
     ]
 
 def dags() -> list[Info]:
@@ -25,5 +28,5 @@ def dags() -> list[Info]:
         Info('sier2_blocks.dags.hv_hist_dag', 'Load a dataframe and plot a histogram'),
         Info('sier2_blocks.dags.geo_points_dag', 'Load and plot a dataframe as geo points'),
         Info('sier2_blocks.dags.save_csv_dag', 'Load and export a dataframe'),
-
+        Info('sier2_blocks.dags.faker_view_dag', 'Load and display fake data'),
     ]
