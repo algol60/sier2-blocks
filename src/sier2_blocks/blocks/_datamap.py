@@ -1,15 +1,13 @@
 from sier2 import Block
 import param
 
-from umap import UMAP
-import thisnotthat as tnt
 import panel as pn
 import numpy as np
 import pandas as pd
 
 class RunUMAP(Block):
     """Run data through UMAP to reduce dimensionality."""
-
+    
     in_arr = param.ClassSelector(
         doc='A pandas dataframe or numpy array containing high dimensional data',
         class_=(pd.DataFrame, np.array),
@@ -56,10 +54,17 @@ class RunUMAP(Block):
         doc='Output array',
         # class_=(pd.DataFrame, np.array),
     )
-    out_reducer = param.ClassSelector(class_=UMAP, doc='UMAP reducer')
+    out_reducer = param.Parameter(doc='UMAP reducer')
 
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, continue_label='Run UMAP', **kwargs)
+
+        # umap is a big library, only import it if we're making a block.
+        # We also need to import it here so we can set up the reducer param.
+        # It can be referenced with self.UMAP
+        #
+        from umap import UMAP
+        self._UMAP = UMAP
 
     def __panel__(self):
         return pn.Param(
@@ -85,7 +90,7 @@ class RunUMAP(Block):
             raise NotImplementedError
 
     def execute(self):
-        reducer = UMAP(
+        reducer = self._UMAP(
             n_neighbors=self.in_n_neighbors,
             min_dist=self.in_min_dist,
             n_components=self.in_n_components,
@@ -115,6 +120,7 @@ class ThisNotThat(Block):
 
     Use ThisNotThat to make an interactive viewer of a datamap.
     """
+    
     in_df = param.DataFrame(doc='Input dataframe containing labels and hover text')
     in_map_data = param.Array(doc='Input map data')
     in_label_col = param.Selector(doc='Input label column')
@@ -123,40 +129,36 @@ class ThisNotThat(Block):
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, continue_label='Make TnT Plot', **kwargs)
 
-        self.plot = pn.pane.Placeholder(sizing_mode='stretch_width', min_height=600)
+        # thisnotthat is not a library we want sier2-blocks to depend on.
+        # Only try to import it if we're making a tnt block.
+        # It can be accessed through self.BokehPlotPane
+        #
+        from thisnotthat import BokehPlotPane
+        self._BokehPlotPane = BokehPlotPane
+        
+        self.plot = pn.pane.Placeholder(sizing_mode='stretch_width')
 
     def prepare(self):
         self.param['in_label_col'].objects = self.in_df.columns
         self.param['in_hover_col'].objects = self.in_df.columns
-
-    @param.depends('in_df', 'in_label_col', 'in_hover_col')
-    def _produce_plot(self):
-        if None not in (self.in_label_col, self.in_hover_col):
-            return tnt.BokehPlotPane(
-                self.in_map_data,
-                labels=self.in_df[self.in_label_col],
-                hover_text=self.in_df[self.in_hover_col],
-            )
-
-        else:
-            return pn.pane.Placeholder()
         
     def execute(self):
         if None not in (self.in_label_col, self.in_hover_col):
-            self.plot.update(tnt.BokehPlotPane(
+            self.plot.update(self._BokehPlotPane(
                 self.in_map_data,
-                labels=self.in_df[self.in_label_col],
-                hover_text=self.in_df[self.in_hover_col],
+                labels=self.in_df[self.in_label_col].astype(str),
+                hover_text=self.in_df[self.in_hover_col].astype(str),
                 sizing_mode='stretch_width',
             ))
 
     def __panel__(self):
-        return pn.Column(
+        return pn.Row(
             pn.Param(
                 self,
                 parameters=['in_label_col', 'in_hover_col'],
             ),
-            self.plot
+            self.plot,
+            sizing_mode='stretch_width',
         )
 
 
