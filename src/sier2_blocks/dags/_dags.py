@@ -1,8 +1,9 @@
-from ..blocks._io import LoadDataFrame, StaticDataFrame, SaveDataFrame
+from ..blocks._io import LoadDataFrame, SaveDataFrame
 from ..blocks._view import SimpleTable, SimpleTableSelect
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
 from ..blocks._geo import ReadGeoPoints, GeoPoints, GeoPointsSelect
 from ..blocks._datamap import RunUMAP, ThisNotThat
+from ..blocks._test_data import StaticDataFrame, FakerData
 
 from sier2 import Connection
 from sier2.panel import PanelDag
@@ -111,16 +112,32 @@ def table_view_dag():
 
     return dag
 
+def faker_view_dag():
+    """Load and display fake data."""
+
+    fdf = FakerData(name='Fake Data')
+    st = SimpleTable(name='Display')
+
+    DOC = '''# Faker example
+
+    Load and display fake data.
+    '''
+
+    dag = PanelDag(doc=DOC, title='Faker')
+    dag.connect(fdf, st, Connection('out_data', 'in_df'))
+
+    return dag
+
 def static_view_dag():
-    """Load a dataframe from file and display in a panel table."""
+    """Load a static example dataframe and display in a table."""
 
     sdf = StaticDataFrame(name='Load DataFrame')
     st = SimpleTableSelect(name='View Table')
     sel_st = SimpleTable(name='Selection')
 
-    DOC = '''# Table viewer
+    DOC = '''# Static table viewer
 
-    Load a dataframe from a file and display the data as a table.
+    Load a static example dataframe and display the data as a table.
     '''
 
     dag = PanelDag(doc=DOC, title='Table')
