@@ -1,60 +1,13 @@
 from ..blocks._io import LoadDataFrame, SaveDataFrame
 from ..blocks._view import SimpleTable, SimpleTableSelect
 from ..blocks._holoviews import HvPoints, HvPointsSelect, HvHist
-from ..blocks._geo import ReadGeoPoints, GeoPoints, GeoPointsSelect
-from ..blocks._datamap import RunUMAP, ThisNotThat
 from ..blocks._test_data import StaticDataFrame, FakerData
 
 from sier2 import Connection
 from sier2.panel import PanelDag
 
-def datamap_dag():
-    """Load a dataframe and make a datamap using UMAP and thisnotthat."""
-    ldf = LoadDataFrame(name='Load DataFrame')
-    umap = RunUMAP(name='UMAP')
-    tnt = ThisNotThat(name='TNT')
 
-    DOC = '''# UMAP Test
-
-    Testing
-    '''
-
-    dag = PanelDag(doc=DOC, title='UMAP')
-    dag.connect(ldf, umap, Connection('out_df', 'in_arr'))
-    dag.connect(umap, tnt, Connection('out_arr', 'in_map_data'))
-    dag.connect(ldf, tnt, Connection('out_df', 'in_df'))
-
-    return dag
-
-def geo_points_dag():
-    sdf = StaticDataFrame(name='Load DataFrame', block_pause_execution=True)
-    rgp = ReadGeoPoints(name='Spatialize DataFrame')
-    gps = GeoPointsSelect(name='Plot Points')
-    gp = GeoPoints(name='View Selection')
-    st = SimpleTable(name='View Table')
-
-    DOC = '''# Geo points chart
-    
-    Load an example dataframe and display a Geo points chart, allowing for a subset to be plotted.
-    '''
-
-    dag = PanelDag(doc=DOC, site='Chart', title='Geo Points')
-    dag.connect(sdf, rgp,
-        Connection('out_df', 'in_df'),
-    )
-    dag.connect(rgp, gps,
-        Connection('out_gdf', 'in_gdf'),
-    )
-    dag.connect(gps, gp,
-        Connection('out_gdf', 'in_gdf'),
-    )
-    dag.connect(gps, st,
-        Connection('out_gdf', 'in_df'),
-    )
-
-    return dag
-
-def hv_points_dag():
+def hv_points():
     """Load a dataframe from a file and display a Points chart."""
 
     ldf = LoadDataFrame(name='Load DataFrame')
@@ -76,7 +29,7 @@ def hv_points_dag():
 
     return dag
 
-def hv_hist_dag():
+def hv_hist():
     """Load a dataframe from a file and display a Histogram."""
 
     ldf = LoadDataFrame(name='Load DataFrame')
@@ -94,7 +47,7 @@ def hv_hist_dag():
 
     return dag
 
-def table_view_dag():
+def table_view():
     """Load a dataframe from file and display in a panel table."""
 
     ldf = LoadDataFrame(name='Load DataFrame')
@@ -112,7 +65,7 @@ def table_view_dag():
 
     return dag
 
-def faker_view_dag():
+def faker_view():
     """Load and display fake data."""
 
     fdf = FakerData(name='Fake Data')
@@ -128,7 +81,7 @@ def faker_view_dag():
 
     return dag
 
-def static_view_dag():
+def static_view():
     """Load a static example dataframe and display in a table."""
 
     sdf = StaticDataFrame(name='Load DataFrame')
@@ -146,7 +99,7 @@ def static_view_dag():
 
     return dag
 
-def save_csv_dag():
+def save_csv():
     """Load a dataframe from file and download."""
     sdf = StaticDataFrame(name='Load DataFrame')
     st = SimpleTableSelect(name='View Table')

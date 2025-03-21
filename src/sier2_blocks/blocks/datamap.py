@@ -5,6 +5,10 @@ import panel as pn
 import numpy as np
 import pandas as pd
 
+from umap import UMAP
+from thisnotthat import BokehPlotPane
+
+
 class RunUMAP(Block):
     """Run data through UMAP to reduce dimensionality."""
     
@@ -59,13 +63,6 @@ class RunUMAP(Block):
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, continue_label='Run UMAP', **kwargs)
 
-        # umap is a big library, only import it if we're making a block.
-        # We also need to import it here so we can set up the reducer param.
-        # It can be referenced with self.UMAP
-        #
-        from umap import UMAP
-        self._UMAP = UMAP
-
     def __panel__(self):
         return pn.Param(
             self,
@@ -90,7 +87,7 @@ class RunUMAP(Block):
             raise NotImplementedError
 
     def execute(self):
-        reducer = self._UMAP(
+        reducer = UMAP(
             n_neighbors=self.in_n_neighbors,
             min_dist=self.in_min_dist,
             n_components=self.in_n_components,
@@ -128,13 +125,6 @@ class ThisNotThat(Block):
 
     def __init__(self, *args, block_pause_execution=True, **kwargs):
         super().__init__(*args, block_pause_execution=block_pause_execution, continue_label='Make TnT Plot', **kwargs)
-
-        # thisnotthat is not a library we want sier2-blocks to depend on.
-        # Only try to import it if we're making a tnt block.
-        # It can be accessed through self.BokehPlotPane
-        #
-        from thisnotthat import BokehPlotPane
-        self._BokehPlotPane = BokehPlotPane
         
         self.plot = pn.pane.Placeholder(sizing_mode='stretch_width')
 
@@ -144,7 +134,7 @@ class ThisNotThat(Block):
         
     def execute(self):
         if None not in (self.in_label_col, self.in_hover_col):
-            self.plot.update(self._BokehPlotPane(
+            self.plot.update(BokehPlotPane(
                 self.in_map_data,
                 labels=self.in_df[self.in_label_col].astype(str),
                 hover_text=self.in_df[self.in_hover_col].astype(str),
